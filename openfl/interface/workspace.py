@@ -131,12 +131,12 @@ def export_():
 
     from pip._internal.operations import freeze
     requirements_generator = freeze.freeze()
-    with open('./requirements.txt', 'w') as f:
-        for package in requirements_generator:
-            if '==' not in package:
-                # We do not export dependencies without version
-                continue
-            f.write(package + '\n')
+#    with open('./requirements.txt', 'w') as f:
+#        for package in requirements_generator:
+#            if '==' not in package:
+#                # We do not export dependencies without version
+#                continue
+#            f.write(package + '\n')
 
     archive_type = 'zip'
     archive_name = basename(getcwd())
