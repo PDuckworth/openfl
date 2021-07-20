@@ -13,7 +13,7 @@ from click import pass_context
 from click import style
 
 
-def setup_logging(level='info'):
+def setup_logging(level='info', log_to_file=None):
     """Initialize logging settings."""
     from logging import basicConfig
     from logging import CRITICAL
@@ -43,8 +43,18 @@ def setup_logging(level='info'):
 
     level = levels.get(level.lower(), levels['notset'])
 
-    basicConfig(level=level, format='%(message)s',
-                datefmt='[%X]', handlers=[RichHandler(console=console)])
+    if log_to_file is None:
+        basicConfig(level=level, format='%(message)s',
+                datefmt='[%X]', 
+                handlers=[RichHandler(console=console)],
+                )
+    else:
+        basicConfig(filename=log_to_file,
+                filemode="a",
+                level=level,
+                format='%(message)s',
+                datefmt='[%X]',
+                )
 
 
 def disable_warnings():
@@ -126,8 +136,9 @@ class CLI(Group):
 
 @group(cls=CLI)
 @option('-l', '--log-level', default='info', help='Logging verbosity level.')
+@option('-f', '--log-to-file', default=None, help='Filepath for logging.')
 @pass_context
-def cli(context, log_level):
+def cli(context, log_level, log_to_file):
     """Command-line Interface."""
     from sys import argv
 
@@ -136,8 +147,8 @@ def cli(context, log_level):
     context.obj['fail'] = False
     context.obj['script'] = argv[0]
     context.obj['arguments'] = argv[1:]
-
-    setup_logging(log_level)
+    
+    setup_logging(log_level, log_to_file)
 
 
 @cli.resultcallback()
