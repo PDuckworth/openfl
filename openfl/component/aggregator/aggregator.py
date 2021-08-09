@@ -752,7 +752,7 @@ class Aggregator:
                     )
                 if agg_function:
                     if agg_tensor_name != "feature_variances":
-                    self.logger.info(f'{agg_function} {agg_tensor_name}:\t{agg_results:.4f}')
+                        self.logger.info(f'{agg_function} {agg_tensor_name}:\t{agg_results:.4f}')
                 else:
                     self.logger.info(f'{agg_tensor_name}:\t{agg_results:.4f}')
                 # TODO Add all of the logic for saving the model based
