@@ -733,6 +733,7 @@ class Aggregator:
         # tensor for that round
         agg_function = self.assigner.get_aggregation_type_for_task(task_name)
         task_key = TaskResultKey(task_name, collaborators_for_task[0], self.round_number)
+        tensor_name_exceptions = ["acc_dummy", "feature_variances"]
         for tensor_key in self.collaborator_tasks_results[task_key]:
             tensor_name, origin, round_number, report, tags = tensor_key
             assert (tags[-1] == collaborators_for_task[0]), \
@@ -745,23 +746,24 @@ class Aggregator:
                 agg_tensor_key, collaborator_weight_dict, aggregation_function=agg_function)
             if report:
                 # Print the aggregated metric
-                if agg_results is None and agg_tensor_name != "feature_variances":
+                if agg_results is None and agg_tensor_name not in tensor_name_exceptions:
                     self.logger.warning(
                         f'Aggregated metric {agg_tensor_name} could not be collected '
                         f'for round {self.round_number}. Skipping reporting for this round'
                     )
                 if agg_function:
-                    if agg_tensor_name != "feature_variances":
+                    if agg_tensor_name not in tensor_name_exceptions:
                         self.logger.info(f'{agg_function} {agg_tensor_name}:\t{agg_results:.4f}')
                 else:
-                    self.logger.info(f'{agg_tensor_name}:\t{agg_results:.4f}')
+                    if agg_tensor_name not in tensor_name_exceptions:
+                        self.logger.info(f'{agg_tensor_name}:\t{agg_results:.4f}')
                 # TODO Add all of the logic for saving the model based
                 #  on best accuracy, lowest loss, etc.
                 if 'validate_agg' in tags:
                     # Compare the accuracy of the model, and
                     # potentially save it
                     if self.best_model_score is None or self.best_model_score < agg_results:
-                        if agg_tensor_name != "feature_variances":
+                        if agg_tensor_name not in tensor_name_exceptions:
                             self.logger.info(f'Saved the best model with score {agg_results:f}')
                         self.best_model_score = agg_results
                         self._save_model(round_number, self.best_state_path)
