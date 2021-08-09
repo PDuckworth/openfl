@@ -745,22 +745,24 @@ class Aggregator:
                 agg_tensor_key, collaborator_weight_dict, aggregation_function=agg_function)
             if report:
                 # Print the aggregated metric
-                if agg_results is None:
+                if agg_results is None and agg_tensor_name != "feature_variances":
                     self.logger.warning(
                         f'Aggregated metric {agg_tensor_name} could not be collected '
                         f'for round {self.round_number}. Skipping reporting for this round'
                     )
                 if agg_function:
-                    self.logger.info(f'{agg_function} {agg_tensor_name}:\t{agg_results}')
+                    if agg_tensor_name != "feature_variances":
+                    self.logger.info(f'{agg_function} {agg_tensor_name}:\t{agg_results:.4f}')
                 else:
-                    self.logger.info(f'{agg_tensor_name}:\t{agg_results}')
+                    self.logger.info(f'{agg_tensor_name}:\t{agg_results:.4f}')
                 # TODO Add all of the logic for saving the model based
                 #  on best accuracy, lowest loss, etc.
                 if 'validate_agg' in tags:
                     # Compare the accuracy of the model, and
                     # potentially save it
                     if self.best_model_score is None or self.best_model_score < agg_results:
-                        self.logger.info(f'Saved the best model with score {agg_results}')
+                        if agg_tensor_name != "feature_variances":
+                            self.logger.info(f'Saved the best model with score {agg_results:f}')
                         self.best_model_score = agg_results
                         self._save_model(round_number, self.best_state_path)
             if 'trained' in tags:
